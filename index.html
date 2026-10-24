@@ -112,7 +112,7 @@ function check(file, cb){
   im.onerror=()=>{ found[file]=false; cb(false); };
   im.src=BASE+encodeURIComponent(file);
 }
-["beyondburg-logo.png","linkedin.png","instagram.png"].forEach(f=>check(f,()=>render()));
+["beyondburg-logo.png","linkedin.png","instagram.png","phone.png","email.png","website.png"].forEach(f=>check(f,()=>render()));
 
 function social(href,label,file){
   if(!href) return "";
@@ -121,11 +121,13 @@ function social(href,label,file){
     : `<span style="display:inline-block;width:26px;height:26px;line-height:26px;border-radius:13px;background:${GREEN};color:#ffffff;font-family:Arial,sans-serif;font-size:12px;font-weight:bold;text-align:center;">${label}</span>`;
   return `<td style="padding-left:6px;"><a href="${esc(href)}" target="_blank" style="text-decoration:none;">${inner}</a></td>`;
 }
-function row(letter,text,href){
+function row(letter,file,text,href){
   if(!text) return "";
-  return `<tr><td style="padding:3px 8px 3px 0;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;color:${GREEN};width:12px;">${letter}</td><td style="padding:3px 0;font-family:Georgia,'Times New Roman',serif;font-size:13px;"><a href="${esc(href)}" style="color:#222222;text-decoration:none;">${esc(text)}</a></td></tr>`;
+  const icon = found[file]
+    ? `<img src="${BASE+file}" width="16" height="16" alt="${letter}" style="display:block;border:0;width:16px;height:16px;">`
+    : `<span style="font-family:Arial,sans-serif;font-size:11px;font-weight:bold;color:${GREEN};">${letter}</span>`;
+  return `<tr><td style="padding:4px 10px 4px 0;width:16px;vertical-align:middle;">${icon}</td><td style="padding:4px 0;vertical-align:middle;font-family:Georgia,'Times New Roman',serif;font-size:13px;"><a href="${esc(href)}" style="color:#222222;text-decoration:none;">${esc(text)}</a></td></tr>`;
 }
-
 function build(){
   const v={}; ids.forEach(k=>v[k]=$(k).value.trim());
   const web=url(v.website), webText=v.website.replace(/^https?:\/\//i,"").replace(/\/$/,"");
@@ -142,7 +144,7 @@ ${photoCell}
 <div style="font-family:Georgia,'Times New Roman',serif;font-size:12.5px;color:#333333;line-height:20px;">${esc(v.title||"Job title")}<br>${esc(v.company)}</div>
 </td>
 <td style="vertical-align:middle;padding-left:20px;"><table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
-${row("P",v.phone,tel(v.phone))}${row("E",v.email,"mailto:"+v.email)}${row("W",webText,web)}
+${row("P","phone.png",v.phone,tel(v.phone))}${row("E","email.png",v.email,"mailto:"+v.email)}${row("W","website.png",webText,web)}
 </table></td>
 </tr></table></td></tr>
 <tr><td style="border-top:1px solid #222222;padding-top:12px;"><table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:100%;"><tr>
