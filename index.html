@@ -51,7 +51,7 @@ button{font:600 15px "Barlow",Arial,sans-serif;border-radius:9px;padding:11px 18
       <label for="company">Company line</label>
       <input id="company" value="Beyondburg Pvt.Ltd">
       <label for="phone">Phone</label>
-      <input id="phone" placeholder="+91 89215 01164" inputmode="tel">
+      <input id="phone" placeholder="9003517970" inputmode="tel">
       <label for="email">Email</label>
       <input id="email" placeholder="nishad@beyondburginc.com" inputmode="email">
       <label for="photo">Photo file name</label>
@@ -73,6 +73,7 @@ button{font:600 15px "Barlow",Arial,sans-serif;border-radius:9px;padding:11px 18
       <div class="mail"><div id="sig"></div></div>
       <div class="actions">
         <button type="button" class="primary" id="copyRich">Copy signature</button>
+        <button type="button" class="secondary" id="copyLink">Copy link to share</button>
         <button type="button" class="secondary" id="copyHtml">Copy HTML code</button>
       </div>
       <div class="status" id="status" role="status" aria-live="polite"></div>
@@ -92,7 +93,7 @@ button{font:600 15px "Barlow",Arial,sans-serif;border-radius:9px;padding:11px 18
 <script>
 // All images are served from this public GitHub Pages site.
 const BASE = "https://renegade-immortal.github.io/beyondburg-assets/";
-const GREEN = "#2c7f42";
+const GREEN = "#046a38";
 const ids = ["name","title","company","phone","email","photo","website","linkedin","instagram"];
 const $ = id => document.getElementById(id);
 const esc = s => String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
@@ -101,6 +102,12 @@ const tel = p => "tel:"+(p||"").replace(/[^\d+]/g,"");
 
 // Remember company links (and last details) in this browser
 try{ const s=JSON.parse(localStorage.getItem("bb-sig2")||"null"); if(s) ids.forEach(k=>{ if(s[k]) $(k).value=s[k]; }); }catch(e){}
+
+// A shared link (…/#name=…&title=…) fills in every field, so nobody has to retype
+try{
+  const h=location.hash.slice(1);
+  if(h.includes("=")){ const q=new URLSearchParams(h); ids.forEach(k=>{ if(q.has(k)) $(k).value=q.get(k); }); }
+}catch(e){}
 
 // Check which images actually exist in the repo, so a missing file never ends up as a broken image
 const found = {};
@@ -117,37 +124,46 @@ function check(file, cb){
 function social(href,label,file){
   if(!href) return "";
   const inner = found[file]
-    ? `<img src="${BASE+file}" width="26" height="26" alt="${label==="in"?"LinkedIn":"Instagram"}" style="display:block;border:0;width:26px;height:26px;">`
-    : `<span style="display:inline-block;width:26px;height:26px;line-height:26px;border-radius:13px;background:${GREEN};color:#ffffff;font-family:Arial,sans-serif;font-size:12px;font-weight:bold;text-align:center;">${label}</span>`;
+    ? `<img src="${BASE+file}" width="18" height="18" alt="${label==="in"?"LinkedIn":"Instagram"}" style="display:block;border:0;width:18px;height:18px;">`
+    : `<span style="display:inline-block;width:18px;height:18px;line-height:18px;border-radius:9px;background:${GREEN};color:#ffffff;font-family:Arial,sans-serif;font-size:9px;font-weight:bold;text-align:center;">${label}</span>`;
   return `<td style="padding-left:6px;"><a href="${esc(href)}" target="_blank" style="text-decoration:none;">${inner}</a></td>`;
 }
 function row(letter,file,text,href){
   if(!text) return "";
   const icon = found[file]
-    ? `<img src="${BASE+file}" width="16" height="16" alt="${letter}" style="display:block;border:0;width:16px;height:16px;">`
-    : `<span style="font-family:Arial,sans-serif;font-size:11px;font-weight:bold;color:${GREEN};">${letter}</span>`;
-  return `<tr><td style="padding:4px 10px 4px 0;width:16px;vertical-align:middle;">${icon}</td><td style="padding:4px 0;vertical-align:middle;font-family:Georgia,'Times New Roman',serif;font-size:13px;"><a href="${esc(href)}" style="color:#222222;text-decoration:none;">${esc(text)}</a></td></tr>`;
+    ? `<img src="${BASE+file}" width="12" height="12" alt="${letter}" style="display:block;border:0;width:12px;height:12px;">`
+    : `<span style="font-family:Arial,sans-serif;font-size:9px;font-weight:bold;color:${GREEN};">${letter}</span>`;
+  return `<tr><td style="padding:3px 8px 3px 0;width:12px;vertical-align:middle;">${icon}</td><td style="padding:3px 0;vertical-align:middle;font-family:Georgia,'Times New Roman',serif;font-size:11px;line-height:14px;white-space:nowrap;"><a href="${esc(href)}" style="color:#222222;text-decoration:none;">${esc(text)}</a></td></tr>`;
 }
+// "+919003517970" or "9003517970" -> "+91 90035 17970"
+function fmtPhone(p){
+  const d=(p||"").replace(/\D/g,"");
+  if(d.length===10) return "+91 "+d.slice(0,5)+" "+d.slice(5);
+  if(d.length===12 && d.startsWith("91")) return "+91 "+d.slice(2,7)+" "+d.slice(7);
+  return (p||"").trim();
+}
+
 function build(){
   const v={}; ids.forEach(k=>v[k]=$(k).value.trim());
   const web=url(v.website), webText=v.website.replace(/^https?:\/\//i,"").replace(/\/$/,"");
+  const phone=fmtPhone(v.phone);
   const photoOK = v.photo && found[v.photo];
-  const photoCell = photoOK ? `<td style="padding-right:20px;vertical-align:middle;"><img src="${BASE+encodeURIComponent(v.photo)}" width="110" height="110" alt="${esc(v.name)}" style="display:block;width:110px;height:110px;border-radius:55px;border:0;"></td>` : "";
+  const photoCell = photoOK ? `<td style="padding-right:14px;vertical-align:middle;"><img src="${BASE+encodeURIComponent(v.photo)}" width="80" height="80" alt="${esc(v.name)}" style="display:block;width:80px;height:80px;border-radius:40px;border:0;"></td>` : "";
   const logo = found["beyondburg-logo.png"]
-    ? `<img src="${BASE}beyondburg-logo.png" width="170" height="20" alt="BEYONDBURG Inc" style="display:block;border:0;width:170px;height:20px;">`
-    : `<span style="font-family:Arial,sans-serif;font-size:17px;font-weight:bold;color:#111111;">BEYONDBURG Inc</span>`;
-  return `<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:520px;max-width:520px;">
-<tr><td style="padding-bottom:16px;"><table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr>
+    ? `<img src="${BASE}beyondburg-logo.png" width="120" height="14" alt="BEYONDBURG Inc" style="display:block;border:0;width:120px;height:14px;">`
+    : `<span style="font-family:Arial,sans-serif;font-size:13px;font-weight:bold;color:${GREEN};">BEYONDBURG Inc</span>`;
+  return `<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:440px;max-width:440px;">
+<tr><td style="padding-bottom:10px;"><table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr>
 ${photoCell}
-<td style="vertical-align:middle;padding-right:20px;border-right:1px solid #222222;">
-<div style="font-family:Georgia,'Times New Roman',serif;font-size:18px;font-weight:bold;color:#111111;margin-bottom:6px;">${esc(v.name||"Your name")}</div>
-<div style="font-family:Georgia,'Times New Roman',serif;font-size:12.5px;color:#333333;line-height:20px;">${esc(v.title||"Job title")}<br>${esc(v.company)}</div>
+<td width="160" style="width:160px;vertical-align:middle;padding-right:14px;border-right:1px solid #222222;">
+<div style="font-family:Georgia,'Times New Roman',serif;font-size:14px;line-height:18px;font-weight:bold;color:#111111;margin-bottom:4px;">${esc(v.name||"Your name")}</div>
+<div style="font-family:Georgia,'Times New Roman',serif;font-size:11px;color:#333333;line-height:15px;">${esc(v.title||"Job title")}<br>${esc(v.company)}</div>
 </td>
-<td style="vertical-align:middle;padding-left:20px;"><table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
-${row("P","phone.png",v.phone,tel(v.phone))}${row("E","email.png",v.email,"mailto:"+v.email)}${row("W","website.png",webText,web)}
+<td style="vertical-align:middle;padding-left:14px;"><table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+${row("P","phone.png",phone,tel(phone))}${row("E","email.png",v.email,"mailto:"+v.email)}${row("W","website.png",webText,web)}
 </table></td>
 </tr></table></td></tr>
-<tr><td style="border-top:1px solid #222222;padding-top:12px;"><table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:100%;"><tr>
+<tr><td style="border-top:1px solid #222222;padding-top:8px;"><table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:100%;"><tr>
 <td style="vertical-align:middle;"><a href="${esc(web)}" target="_blank" style="text-decoration:none;">${logo}</a></td>
 <td style="vertical-align:middle;" align="right"><table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr>${social(url(v.linkedin),"in","linkedin.png")}${social(url(v.instagram),"ig","instagram.png")}</tr></table></td>
 </tr></table></td></tr>
@@ -184,6 +200,12 @@ $("copyRich").addEventListener("click",async()=>{
   let ok=false; try{ ok=document.execCommand("copy"); }catch(e){}
   if(ok){ s.removeAllRanges(); say("Copied. Paste it into Gmail’s signature box with Ctrl+V."); }
   else say("Your browser blocked copying. The signature is selected, so press Ctrl+C now.");
+});
+$("copyLink").addEventListener("click",async()=>{
+  const q=new URLSearchParams(); ids.forEach(k=>{ const x=$(k).value.trim(); if(x) q.set(k,x); });
+  const link=location.origin+location.pathname+"#"+q.toString();
+  try{ await navigator.clipboard.writeText(link); say("Link copied. Whoever opens it sees these details filled in and just presses Copy signature."); }
+  catch(e){ window.prompt("Copy this link:",link); }
 });
 $("copyHtml").addEventListener("click",async()=>{
   try{ await navigator.clipboard.writeText(build()); say("HTML code copied."); }catch(e){ say("Copying was blocked by the browser."); }
