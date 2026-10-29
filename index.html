@@ -133,7 +133,7 @@ function row(letter,file,text,href){
   const icon = found[file]
     ? `<img src="${BASE+file}" width="12" height="12" alt="${letter}" style="display:block;border:0;width:12px;height:12px;">`
     : `<span style="font-family:Arial,sans-serif;font-size:9px;font-weight:bold;color:${GREEN};">${letter}</span>`;
-  return `<tr><td style="padding:3px 8px 3px 0;width:12px;vertical-align:middle;">${icon}</td><td style="padding:3px 0;vertical-align:middle;font-family:Georgia,'Times New Roman',serif;font-size:11px;line-height:14px;white-space:nowrap;"><a href="${esc(href)}" style="color:#222222;text-decoration:none;">${esc(text)}</a></td></tr>`;
+  return `<tr><td style="padding:3px 8px 3px 0;width:12px;vertical-align:middle;">${icon}</td><td style="padding:3px 0;vertical-align:middle;font-family:'Times New Roman',Times,serif;font-size:12px;line-height:14px;white-space:nowrap;"><a href="${esc(href)}" style="color:#222222;text-decoration:none;">${esc(text)}</a></td></tr>`;
 }
 // "+919003517970" or "9003517970" -> "+91 90035 17970"
 function fmtPhone(p){
